@@ -159,7 +159,7 @@ class TableauReport extends React.Component {
         this.setState({ loading: false });
 
         if (this.props.onLoad) {
-          this.props.onLoad(this);
+          this.props.onLoad(this.viz);
         }
       }
     };
