@@ -21,16 +21,16 @@ class TableauReport extends React.Component {
     this.initTableau();
   }
 
-  componentWillReceiveProps(nextProps) {
-    const isReportChanged = nextProps.url !== this.props.url;
+  componentDidUpdate(prevProps) {
+    const isReportChanged = prevProps.url !== this.props.url;
     const isFiltersChanged = !shallowequal(
       this.props.filters,
-      nextProps.filters,
+      prevProps.filters,
       this.compareArrays
     );
     const isParametersChanged = !shallowequal(
       this.props.parameters,
-      nextProps.parameters
+      prevProps.parameters
     );
     const isLoading = this.state.loading;
 
@@ -41,16 +41,16 @@ class TableauReport extends React.Component {
 
     // Only filters are changed, apply via the API
     if (!isReportChanged && isFiltersChanged && !isLoading) {
-      this.applyFilters(nextProps.filters);
+      this.applyFilters(this.props.filters);
     }
 
     // Only parameters are changed, apply via the API
     if (!isReportChanged && isParametersChanged && !isLoading) {
-      this.applyParameters(nextProps.parameters);
+      this.applyParameters(this.props.parameters);
     }
 
     // token change, validate it.
-    if (nextProps.token !== this.props.token) {
+    if (prevProps.token !== this.props.token) {
       this.setState({ didInvalidateToken: false });
     }
   }
