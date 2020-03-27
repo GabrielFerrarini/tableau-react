@@ -1,10 +1,10 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import url from 'url';
-import { Promise } from 'es6-promise';
-import shallowequal from 'shallowequal';
-import tokenizeUrl from './tokenizeUrl';
-import Tableau from 'tableau-api';
+import React from "react";
+import PropTypes from "prop-types";
+import url from "url";
+import { Promise } from "es6-promise";
+import shallowequal from "shallowequal";
+import tokenizeUrl from "./tokenizeUrl";
+import Tableau from "tableau-api";
 
 class TableauReport extends React.Component {
   constructor(props) {
@@ -13,7 +13,7 @@ class TableauReport extends React.Component {
     this.state = {
       filters: props.filters,
       parameters: props.parameters,
-      loading: true,
+      loading: true
     };
   }
 
@@ -21,10 +21,17 @@ class TableauReport extends React.Component {
     this.initTableau();
   }
 
-  componentWillReceiveProps(nextProps) {
-    const isReportChanged = nextProps.url !== this.props.url;
-    const isFiltersChanged = !shallowequal(this.props.filters, nextProps.filters, this.compareArrays);
-    const isParametersChanged = !shallowequal(this.props.parameters, nextProps.parameters);
+  componentDidUpdate(prevProps) {
+    const isReportChanged = prevProps.url !== this.props.url;
+    const isFiltersChanged = !shallowequal(
+      this.props.filters,
+      prevProps.filters,
+      this.compareArrays
+    );
+    const isParametersChanged = !shallowequal(
+      this.props.parameters,
+      prevProps.parameters
+    );
     const isLoading = this.state.loading;
 
     // Only report is changed - re-initialize
@@ -34,16 +41,16 @@ class TableauReport extends React.Component {
 
     // Only filters are changed, apply via the API
     if (!isReportChanged && isFiltersChanged && !isLoading) {
-      this.applyFilters(nextProps.filters);
+      this.applyFilters(this.props.filters);
     }
 
     // Only parameters are changed, apply via the API
     if (!isReportChanged && isParametersChanged && !isLoading) {
-      this.applyParameters(nextProps.parameters);
+      this.applyParameters(this.props.parameters);
     }
 
     // token change, validate it.
-    if (nextProps.token !== this.props.token) {
+    if (prevProps.token !== this.props.token) {
       this.setState({ didInvalidateToken: false });
     }
   }
@@ -67,7 +74,7 @@ class TableauReport extends React.Component {
    * whether any throw an error.
    */
   onComplete(promises, cb) {
-    Promise.all(promises).then(() => cb(), () => cb())
+    Promise.all(promises).then(() => cb(), () => cb());
   }
 
   /**
@@ -77,14 +84,14 @@ class TableauReport extends React.Component {
   getUrl() {
     const { token } = this.props;
     const parsed = url.parse(this.props.url, true);
-    const query = '?:embed=yes&:comments=no&:toolbar=yes&:refresh=yes';
+    const query = "?:embed=yes&:comments=no&:toolbar=yes&:refresh=yes";
 
     if (!this.state.didInvalidateToken && token) {
       this.invalidateToken();
       return tokenizeUrl(this.props.url, token) + query;
     }
 
-    return parsed.protocol + '//' + parsed.host + parsed.pathname + query;
+    return parsed.protocol + "//" + parsed.host + parsed.pathname + query;
   }
 
   invalidateToken() {
@@ -108,9 +115,7 @@ class TableauReport extends React.Component {
         !this.state.filters.hasOwnProperty(key) ||
         !this.compareArrays(this.state.filters[key], filters[key])
       ) {
-        promises.push(
-          this.sheet.applyFilterAsync(key, filters[key], REPLACE)
-        );
+        promises.push(this.sheet.applyFilterAsync(key, filters[key], REPLACE));
       }
     }
 
@@ -130,7 +135,9 @@ class TableauReport extends React.Component {
       }
     }
 
-    this.onComplete(promises, () => this.setState({ loading: false, parameters }));
+    this.onComplete(promises, () =>
+      this.setState({ loading: false, parameters })
+    );
   }
 
   /**
@@ -152,7 +159,7 @@ class TableauReport extends React.Component {
         this.setState({ loading: false });
 
         if (this.props.onLoad) {
-          this.props.onLoad(new Date());
+          this.props.onLoad(this.viz);
         }
       }
     };
@@ -167,7 +174,7 @@ class TableauReport extends React.Component {
   }
 
   render() {
-    return <div ref={c => this.container = c} />;
+    return <div ref={c => (this.container = c)} />;
   }
 }
 
@@ -177,14 +184,14 @@ TableauReport.propTypes = {
   parameters: PropTypes.object,
   options: PropTypes.object,
   token: PropTypes.string,
-  onLoad: PropTypes.func,
+  onLoad: PropTypes.func
 };
 
 TableauReport.defaultProps = {
   parameters: {},
   filters: {},
   options: {},
-  onLoad: null,
+  onLoad: null
 };
 
 export default TableauReport;
